@@ -4,11 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <title>Quill - Extending with Custom Formats</title>
+
 </head>
 
 <body>
-    <code>TODO</code>
+    <p>HTML</p>
+    <div id="editor-container"></div>
+
+    <p>Raw HTML</p>
+    <pre id="raw-html" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px;"></pre>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        const quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline']
+                ]
+            }
+        });
+
+        const BoldBlot = Quill.import('formats/bold');
+        class CustomBoldBlot extends BoldBlot {
+            static blotName = 'bold';
+            static tagName = 'span';
+
+            static create(value) {
+                const node = super.create(value);
+
+                if (value) {
+                    node.classList.add('font-weight-bold');
+                }
+
+                return node;
+            }
+
+            static formats(node) {
+                return {
+                    bold: node.classList.contains('font-weight-bold')
+                };
+            }
+
+            optimize() {
+                // Nothing here.
+            }
+        }
+
+        Quill.register(CustomBoldBlot, true);
+
+        quill.on('text-change', function (delta, oldDelta, source) {
+            document.getElementById('raw-html').innerText = quill.root.innerHTML;
+        });
+    </script>
 </body>
 
 </html>
